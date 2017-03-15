@@ -4,6 +4,8 @@ dist/
 build/
 *.py[cod]
 node_modules/
+*.ipynb
+nbs
 
 # Compiled javascript
 ipywidgetaudio/static/
