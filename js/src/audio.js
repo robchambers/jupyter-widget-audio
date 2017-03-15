@@ -41,6 +41,11 @@ var AudioView = widgets.DOMWidgetView.extend({
         this.el.setAttribute('controls', 'controls');
         this.el.setAttribute('src', this.model.get('src'));//'http://www.kozco.com/tech/piano2.wav');
 
+        var that=this;
+        this.el.ontimeupdate =  function currentTimeChanged() {
+            that.model.set('current_time', that.el.currentTime, {updated_view: that});
+            that.touch();
+        };
         // this._color_container = document.createElement('div');
         // this._color_container.className = 'widget-inline-hbox widget-colorpicker-input';
         // this.el.appendChild(this._color_container);
@@ -60,12 +65,14 @@ var AudioView = widgets.DOMWidgetView.extend({
 
         // this._update_concise();
         // this._update_value();
-    // }
-    //
-    //
+        // }
+        //
+        //
         this.value_changed();
         // this.model.on('change:value', this.value_changed, this);
     },
+
+
 
     value_changed: function() {
         // this.el.textContent = this.model.get('value');

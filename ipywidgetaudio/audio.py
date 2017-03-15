@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 import os
-from traitlets import Unicode, Bool, Integer, Bytes
+from traitlets import Unicode, Bool, Integer, Bytes, Float
 
 from IPython.utils.py3compat import (string_types, #cast_bytes_py2, cast_unicode,
                                      unicode_type)
@@ -14,6 +14,8 @@ class Audio(widgets.DOMWidget):
     _model_module = Unicode('jupyter-widget-audio').tag(sync=True)
     _view_module_version = Unicode('^0.1.0').tag(sync=True)
     _model_module_version = Unicode('^0.1.0').tag(sync=True)
+
+    current_time = Float(0).tag(sync=True)
 
     src = Unicode().tag(sync=True)
     type = Unicode().tag(sync=True)
