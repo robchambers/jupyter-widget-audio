@@ -25,7 +25,10 @@ var AudioModel = widgets.DOMWidgetModel.extend({
         _view_module : 'jupyter-widget-audio',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        value : 'Audio World'
+        // value : 'Audio World'
+        src:'',
+        // type:'',
+
     })
 });
 
@@ -33,13 +36,50 @@ var AudioModel = widgets.DOMWidgetModel.extend({
 // Custom View. Renders the widget model.
 var AudioView = widgets.DOMWidgetView.extend({
     render: function() {
+
+        console.log('render');
+        this.el.setAttribute('controls', 'controls');
+        this.el.setAttribute('src', this.model.get('src'));//'http://www.kozco.com/tech/piano2.wav');
+
+        // this._color_container = document.createElement('div');
+        // this._color_container.className = 'widget-inline-hbox widget-colorpicker-input';
+        // this.el.appendChild(this._color_container);
+        //
+        // this._textbox = document.createElement('input');
+        // this._textbox.setAttribute('type', 'text');
+        //
+        // this._color_container.appendChild(this._textbox);
+        // this._textbox.value = this.model.get('value');
+        //
+        // this._colorpicker = document.createElement('input');
+        // this._colorpicker.setAttribute('type', 'color');
+        // this._color_container.appendChild(this._colorpicker);
+
+        // this.listenTo(this.model, 'change:value', this._update_value);
+        // this.listenTo(this.model, 'change:concise', this._update_concise);
+
+        // this._update_concise();
+        // this._update_value();
+    // }
+    //
+    //
         this.value_changed();
-        this.model.on('change:value', this.value_changed, this);
+        // this.model.on('change:value', this.value_changed, this);
     },
 
     value_changed: function() {
-        this.el.textContent = this.model.get('value');
+        // this.el.textContent = this.model.get('value');
+    },
+
+
+
+    get tagName() {
+        // We can't make this an attribute with a default value
+        // since it would be set after it is needed in the
+        // constructor.
+        return 'audio';
     }
+
 });
 
 

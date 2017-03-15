@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 import os
-from traitlets import Unicode, Bool, Integer
+from traitlets import Unicode, Bool, Integer, Bytes
 
 from IPython.utils.py3compat import (string_types, #cast_bytes_py2, cast_unicode,
                                      unicode_type)
@@ -15,12 +15,14 @@ class Audio(widgets.DOMWidget):
     _view_module_version = Unicode('^0.1.0').tag(sync=True)
     _model_module_version = Unicode('^0.1.0').tag(sync=True)
 
-    value = Unicode('Audio World!').tag(sync=True)
-    data = Unicode()
-    url = Unicode().tag(sync=True)
-    embed = Bool()
-    rate = Integer()
-    autoplay = Bool()
+    src = Unicode().tag(sync=True)
+    type = Unicode().tag(sync=True)
+
+    data = Bytes(allow_none=True)
+    url = Unicode(allow_none=True)
+    embed = Bool(allow_none=True)
+    rate = Integer(allow_none=True)
+    autoplay = Bool(allow_none=True).tag(sync=True)
 
     def __init__(self, data=None, filename=None, url=None, embed=None, rate=None, autoplay=False, **kwargs):
         # if filename is None and url is None and data is None:
@@ -28,16 +30,21 @@ class Audio(widgets.DOMWidget):
         # if embed is False and url is None:
         #     raise ValueError("No url found. Expecting url when embed=False")
         #
-        # if url is not None and embed is not True:
-        #     self.embed = False
-        # else:
-        #     self.embed = True
+        if url is not None and embed is not True:
+            self.embed = False
+        else:
+            self.embed = True
+
         self.autoplay = autoplay
         self.initdata(data=data, url=url, filename=filename)
+
         super(Audio, self).__init__(**kwargs)
 
         if self.data is not None and not isinstance(self.data, bytes):
             self.data = self._make_wav(data, rate)
+
+        self.src = self.src_attr()
+        self.type = self.mimetype
 
     def initdata(self, data=None, url=None, filename=None):
         """
@@ -65,7 +72,7 @@ class Audio(widgets.DOMWidget):
         self.filename = None if filename is None else unicode_type(filename)
 
         self.reload()
-        self._check_data()
+        # self._check_data()
 
     # def __repr__(self):
     #     if not self._show_mem_addr:
@@ -78,29 +85,40 @@ class Audio(widgets.DOMWidget):
 
     def reload(self):
         """Reload the raw data from file or URL."""
-        if self.filename is not None:
-            with open(self.filename, self._read_flags) as f:
-                self.data = f.read()
-        elif self.url is not None:
-            try:
+        if self.embed:
+            if self.filename is not None:
+                with open(self.filename, 'rb') as f:
+                    self.data = f.read()
+            elif self.url is not None:
                 try:
-                    from urllib.request import urlopen  # Py3
-                except ImportError:
-                    from urllib2 import urlopen
-                response = urlopen(self.url)
-                self.data = response.read()
-                # extract encoding from header, if there is one:
-                encoding = None
-                for sub in response.headers['content-type'].split(';'):
-                    sub = sub.strip()
-                    if sub.startswith('charset'):
-                        encoding = sub.split('=')[-1].strip()
-                        break
-                # decode data, if an encoding was specified
-                if encoding:
-                    self.data = self.data.decode(encoding, 'replace')
-            except:
-                self.data = None
+                    try:
+                        from urllib.request import urlopen  # Py3
+                    except ImportError:
+                        from urllib2 import urlopen
+                    response = urlopen(self.url)
+                    self.data = response.read()
+                    # extract encoding from header, if there is one:
+                    encoding = None
+                    for sub in response.headers['content-type'].split(';'):
+                        sub = sub.strip()
+                        if sub.startswith('charset'):
+                            encoding = sub.split('=')[-1].strip()
+                            break
+                    # decode data, if an encoding was specified
+                    if encoding:
+                        self.data = self.data.decode(encoding, 'replace')
+                except:
+                    self.data = None
+
+        import mimetypes
+
+        if self.filename is not None:
+            self.mimetype = mimetypes.guess_type(self.filename)[0]
+        elif self.url is not None:
+            self.mimetype = mimetypes.guess_type(self.url)[0]
+        else:
+            self.mimetype = "audio/wav"
+
 
     def _make_wav(self, data, rate):
         """ Transform a numpy array to a PCM bytestring """
@@ -169,16 +187,16 @@ class Audio(widgets.DOMWidget):
     #           """
     #     return src.format(src=self.src_attr(), type=self.mimetype, autoplay=self.autoplay_attr())
     #
-    # def src_attr(self):
-    #     import base64
-    #     if self.embed and (self.data is not None):
-    #         data = base64 = base64.b64encode(self.data).decode('ascii')
-    #         return """data:{type};base64,{base64}""".format(type=self.mimetype,
-    #                                                         base64=data)
-    #     elif self.url is not None:
-    #         return self.url
-    #     else:
-    #         return ""
+    def src_attr(self):
+        import base64
+        if self.embed and (self.data is not None):
+            data = base64 = base64.b64encode(self.data).decode('ascii')
+            return """data:{type};base64,{base64}""".format(type=self.mimetype,
+                                                            base64=data)
+        elif self.url is not None:
+            return self.url
+        else:
+            return ""
     #
     # def autoplay_attr(self):
     #     if (self.autoplay):
