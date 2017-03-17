@@ -1,6 +1,6 @@
 import ipywidgets as widgets
 import os
-from traitlets import Unicode, Bool, Integer, Bytes, Float
+from traitlets import Unicode, Bool, Integer, Any, Float
 
 from IPython.utils.py3compat import (string_types, #cast_bytes_py2, cast_unicode,
                                      unicode_type)
@@ -20,7 +20,7 @@ class Audio(widgets.DOMWidget):
     src = Unicode().tag(sync=True)
     type = Unicode().tag(sync=True)
 
-    data = Bytes(allow_none=True)
+    data = Any(allow_none=True)
     url = Unicode(allow_none=True)
     embed = Bool(allow_none=True)
     rate = Integer(allow_none=True)
