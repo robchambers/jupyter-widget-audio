@@ -170,25 +170,7 @@ class Audio(widgets.DOMWidget):
 
         return val
 
-    # def _data_and_metadata(self):
-    #     """shortcut for returning metadata with url information, if defined"""
-    #     md = {}
-    #     if self.url:
-    #         md['url'] = self.url
-    #     if md:
-    #         return self.data, md
-    #     else:
-    #         return self.data
-    #
-    # def _repr_html_(self):
-    #     src = """
-    #             <audio controls="controls" {autoplay}>
-    #                 <source src="{src}" type="{type}" />
-    #                 Your browser does not support the audio element.
-    #             </audio>
-    #           """
-    #     return src.format(src=self.src_attr(), type=self.mimetype, autoplay=self.autoplay_attr())
-    #
+
     def src_attr(self):
         import base64
         if self.embed and (self.data is not None):
@@ -199,12 +181,6 @@ class Audio(widgets.DOMWidget):
             return self.url
         else:
             return ""
-    #
-    # def autoplay_attr(self):
-    #     if (self.autoplay):
-    #         return 'autoplay="autoplay"'
-    #     else:
-    #         return ''
 
 def _safe_exists(path):
     """Check path, but don't let exceptions raise"""
